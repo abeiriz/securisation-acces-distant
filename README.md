@@ -4,6 +4,20 @@ Projet présenté le **31 mars 2026** devant le jury de la session d'examen du c
 
 Le sujet ne m'a pas été donné. Il vient d'une observation faite pendant mon stage, chez un client du prestataire d'infogérance qui m'accueillait.
 
+## Pourquoi je publie ce projet maintenant
+
+En mars 2026, cette analyse plaçait **la chaîne du froid comme la valeur métier la plus critique** d'une PME agroalimentaire, devant les données personnelles et l'application de gestion. Elle décrivait comment un accès distant mal protégé pouvait la priver de toute surveillance, et pourquoi le service frigorifique lui-même constituait une surface d'attaque, et pas seulement le chemin qui y mène.
+
+En octobre et novembre 2026, des attaques ont visé les systèmes de réfrigération de centaines de sites en France. Parmi les cibles : des enseignes de la grande distribution, mais aussi des boucheries, un abattoir, des usines coopératives agroalimentaires, puis les réserves de l'Établissement français du sang.
+
+**Je n'avais rien prédit.** J'avais constaté qu'une attaque de ce type était possible, à partir d'un cas réel, et je l'avais écrit. C'est cette ressemblance qui m'a décidée à publier ce travail.
+
+Le dépôt se lit donc dans les deux sens : l'analyse et les mesures telles qu'elles ont été remises en mars, et une relecture à la lumière de ce qui s'est produit ensuite, y compris ce que mon périmètre n'avait pas couvert.
+
+→ [Octobre et novembre 2026 : ce que les attaques sur la chaîne du froid ont confirmé](docs/07-chaine-du-froid-2026.md)
+
+---
+
 > **Aucun nom réel ne figure dans ce dépôt.**
 >
 > Le client n'est pas nommé, et ne le sera pas. Tous les noms qui apparaissent ici sont fictifs : le prestataire frigoriste, le domaine, les machines, les comptes, les certificats. Les adresses IP sont celles d'un laboratoire, et les identifiants ont été retirés. Les captures proviennent de ce laboratoire, reconstruit pour la documentation.
@@ -96,21 +110,28 @@ Autrement dit : la mesure de sécurité qui protège le compte peut elle-même p
 | SO3 | Verrouillage du compte frigoriste | **Prioritaire.** Impacte directement VM1 |
 | SO4 | Poste du frigoriste compromis | La connexion devient indiscernable d'un accès légitime |
 
+Détail de l'analyse, cadre légal et matrice : [contexte et analyse de risques](docs/01-analyse-de-risques.md)
+
 ## Ce que j'ai construit
 
 Une défense en couches, sur les équipements déjà en place. Aucun achat matériel. Cette contrainte était posée dès le départ, et j'y reviens plus bas.
 
 **Fermer le vecteur.** Le port 3389 disparaît d'Internet. Le serveur devient invisible depuis l'extérieur. Le frigoriste passe désormais par un tunnel VPN avec deux facteurs exigés simultanément : un certificat client émis par une autorité interne, et le mot de passe de son compte de domaine. Les deux, ou rien. Le nom du certificat doit correspondre exactement au compte qui se connecte. Une liste de révocation permet de couper l'accès en une opération si le poste est perdu ou volé.
+→ [VPN, PKI et authentification mutuelle](docs/02-vpn-mtls.md)
 
 **Ne pas faire confiance au tunnel.** Un poste compromis peut ouvrir un tunnel parfaitement légitime. Une fois connecté, le frigoriste ne peut atteindre qu'une seule destination : le port 3389 du serveur applicatif. Tout le reste du réseau local lui est fermé, y compris le contrôleur de domaine.
+→ [Moindre privilège et confinement](docs/03-moindre-privilege.md)
 
 **Voir ce qui arrive.** Un IPS en périphérie, avec quatre règles écrites pour ce contexte : scan du port RDP, tentatives de connexion répétées, balayage ICMP, scan SYN multi-ports. Détection, puis blocage automatique de la source.
+→ [IPS et règles de détection](docs/04-ips.md)
 
 **Corréler.** Le SIEM du prestataire centralise les journaux des deux serveurs Windows et du pare-feu. Trois règles personnalisées, rattachées aux techniques MITRE ATT&CK T1110 et T1531. Une réponse active bloque automatiquement l'adresse source en cas de brute-force.
 
 Avec une exception assumée : la règle qui surveille le compte du frigoriste ne déclenche **pas** de blocage automatique. Sinon il suffirait d'une seule tentative échouée depuis l'adresse légitime du frigoriste pour que le SIEM la bloque lui-même. Le mécanisme de protection deviendrait le vecteur d'attaque. Cette règle génère une alerte de niveau 15, transmise à un technicien qui décide.
+→ [SIEM, règles locales et réponse active](docs/05-siem-wazuh.md)
 
 **Garder un œil sur la chambre froide, quoi qu'il arrive.** Fermer le RDP supprime aussi le moyen par lequel le frigoriste était averti des pannes. Il fallait un mécanisme qui ne dépende ni de son compte, ni du VPN, ni d'une intervention humaine. Un script PowerShell vérifie le service de supervision toutes les cinq minutes par tâche planifiée et envoie une alerte par courriel. Il ne protège rien. Il prévient. C'est précisément son intérêt : il fonctionne même quand tout le reste a échoué.
+→ [Supervision indépendante de la chaîne du froid](docs/06-alerte-chaine-du-froid.md)
 
 ## Avant et après
 
@@ -161,9 +182,14 @@ Le pare-feu du client n'était pas disponible en environnement de laboratoire. J
 
 ## Documentation
 
-1. [Octobre et novembre 2026 : ce que les attaques sur la chaîne du froid ont confirmé](docs/07-chaine-du-froid-2026.md)
-
-Les chapitres techniques (analyse EBIOS RM, VPN et PKI, moindre privilège, IPS, SIEM, supervision) sont en cours de publication.
+1. [Contexte, cadre légal et analyse de risques](docs/01-analyse-de-risques.md)
+2. [VPN, PKI et authentification mutuelle](docs/02-vpn-mtls.md)
+3. [Moindre privilège et confinement](docs/03-moindre-privilege.md)
+4. [IPS et règles de détection](docs/04-ips.md)
+5. [SIEM, règles locales et réponse active](docs/05-siem-wazuh.md)
+6. [Supervision indépendante de la chaîne du froid](docs/06-alerte-chaine-du-froid.md)
+7. [Octobre et novembre 2026 : ce que les attaques sur la chaîne du froid ont confirmé](docs/07-chaine-du-froid-2026.md)
+8. [Scripts PowerShell](scripts/)
 
 ---
 
