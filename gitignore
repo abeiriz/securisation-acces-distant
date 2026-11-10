@@ -1,0 +1,28 @@
+# Identifiants et secrets
+*.key
+*.pem
+*.pfx
+*.p12
+*.crt
+*.cred
+credentials*
+*secret*
+*password*
+
+# Fichiers chiffrés par DPAPI : ne jamais publier
+*.clixml
+
+# Exports et images disque
+*.bak
+*.vhdx
+*.vhd
+*.iso
+*.ovpn
+
+# Captures non revues : les déplacer dans captures/ une fois anonymisées
+captures/brut/
+
+# Système
+Thumbs.db
+desktop.ini
+.DS_Store
