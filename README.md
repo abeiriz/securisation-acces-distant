@@ -24,10 +24,14 @@ Le dépôt se lit donc dans les deux sens : l'analyse et les mesures telles qu'e
 >
 > Ce dépôt documente une démarche et des choix techniques, pas une entreprise.
 
-![EBIOS RM](https://img.shields.io/badge/Analyse_de_risques-EBIOS_RM-1f3a5f)
-![VPN](https://img.shields.io/badge/VPN-mTLS-2d6a4f)
-![IPS](https://img.shields.io/badge/IPS-Snort-7b2cbf)
-![SIEM](https://img.shields.io/badge/SIEM-Wazuh-c1121f)
+[![Analyse de risques, basée sur EBIOS RM](https://img.shields.io/badge/Analyse_de_risques-bas%C3%A9e_sur_EBIOS_RM-1f3a5f)](docs/01-analyse-de-risques.md)
+[![VPN mTLS](https://img.shields.io/badge/VPN-mTLS-2d6a4f)](docs/02-vpn-mtls.md)
+[![Moindre privilège](https://img.shields.io/badge/Moindre_privil%C3%A8ge-pare--feu-2d6a4f)](docs/03-moindre-privilege.md)
+[![IPS Snort](https://img.shields.io/badge/IPS-Snort-7b2cbf)](docs/04-ips.md)
+[![SIEM Wazuh](https://img.shields.io/badge/SIEM-Wazuh-c1121f)](docs/05-siem-wazuh.md)
+[![Supervision PowerShell](https://img.shields.io/badge/Supervision-PowerShell-012456)](docs/06-alerte-chaine-du-froid.md)
+
+<sub>Chaque étiquette mène au chapitre correspondant.</sub>
 
 ---
 
