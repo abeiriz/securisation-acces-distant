@@ -17,6 +17,52 @@ Le sujet ne m'a pas été donné. Il vient d'une observation faite pendant mon s
 
 ---
 
+## Avant et après, en un schéma
+
+**Avant.** Le prestataire frigoriste et un attaquant empruntent exactement le même chemin.
+
+```mermaid
+flowchart TB
+  F["CLIM-FROID<br/>prestataire frigoriste"]
+  A["Attaquant"]
+  P["Pare-feu<br/>règle NAT : 3389 ouvert sur Internet"]
+  S["SRV-APP<br/>logiciel du froid · base métier · fichiers"]
+  D["DC-01<br/>Active Directory · DNS"]
+  F --> P
+  A -- "le même chemin" --> P
+  P -- "RDP 3389" --> S
+  S --- D
+  classDef danger fill:#fde2e2,stroke:#c0392b,color:#7b1e1e
+  class P,A danger
+```
+
+**Après.** Le port 3389 n'existe plus depuis Internet. Le prestataire garde l'accès dont il a besoin, et rien de plus.
+
+```mermaid
+flowchart TB
+  F["CLIM-FROID<br/>certificat + mot de passe"]
+  A["Attaquant"]
+  V["Tunnel VPN<br/>double authentification · IP fixe"]
+  R["Règle de moindre privilège"]
+  S["SRV-APP"]
+  D["DC-01 et reste du LAN<br/>inatteignables depuis le tunnel"]
+  W["IPS et SIEM<br/>détection, blocage, alerte"]
+  Q["Supervision de la chaîne du froid<br/>indépendante du compte et du tunnel"]
+  F --> V
+  A -. "refusé au handshake" .-> V
+  V --> R
+  R -- "3389 vers SRV-APP uniquement" --> S
+  R -. "tout le reste bloqué" .-> D
+  S --> W
+  S --> Q
+  classDef safe fill:#e3f5e9,stroke:#2d6a4f,color:#14432a
+  classDef off fill:#f2f2f2,stroke:#9aa0a6,color:#5f6368,stroke-dasharray: 4 3
+  class V,R,W,Q safe
+  class D off
+```
+
+---
+
 ## L'observation
 
 Janvier 2026. Je suis en stage chez un prestataire d'infogérance toulousain et je participe à la modernisation de l'infrastructure d'une PME agroalimentaire sans informaticien interne. Nouveau serveur, Hyper-V, migration de l'Active Directory vers Windows Server 2025, sauvegarde Acronis. Une mission classique de technicienne systèmes et réseaux, menée en binôme avec un technicien senior.
